@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Book car Hust</string>
+    <string name="shr_hint_username">Username</string>
+    <string name="shr_hint_password">Password</string>
+    <string name="shr_button_next">Login</string>
+    <string name="shr_button_cancel">Register</string>
+
+</resources>
