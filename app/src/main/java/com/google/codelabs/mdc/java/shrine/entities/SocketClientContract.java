@@ -1,5 +1,6 @@
 package com.google.codelabs.mdc.java.shrine.entities;
 
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -38,12 +39,13 @@ public class SocketClientContract {
         compositeDisposable = new CompositeDisposable();
     }
 
-    public void subscriberStomp(List<Product> listProduct,ProductListViewAdapter productListViewAdapter, List<Message> messages) {
+    public void subscriberStomp(MediaPlayer mediaPlayer, List<Product> listProduct, ProductListViewAdapter productListViewAdapter, List<Message> messages) {
         resetSubscriptions();
         Disposable disposable = mStompClient.topic("/topic/greetings")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
+                    mediaPlayer.start();
                     Gson gson = new Gson();
                     Message message = gson.fromJson(topicMessage.getPayload(), Message.class);
                     String route = "From "+message.getOrigin() + " to " + message.getDestination()

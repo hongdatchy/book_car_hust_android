@@ -3,6 +3,7 @@ package com.google.codelabs.mdc.java.shrine.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,7 +44,7 @@ public class DistanceFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         socketClientContract = new SocketClientContract();
         ProductListViewAdapter productListViewAdapter = new ProductListViewAdapter(new ArrayList<>());
-        socketClientContract.subscriberStomp(new ArrayList<>(), productListViewAdapter, new ArrayList<>());
+        socketClientContract.subscriberStomp(new MediaPlayer(), new ArrayList<>(), productListViewAdapter, new ArrayList<>());
         super.onCreate(savedInstanceState);
     }
 

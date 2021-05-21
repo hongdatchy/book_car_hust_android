@@ -2,6 +2,7 @@ package com.google.codelabs.mdc.java.shrine.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -71,7 +72,7 @@ public class DriverActivity extends AppCompatActivity {
         });
 
         SocketClientContract socketClientContract = new SocketClientContract();
-        socketClientContract.subscriberStomp(listProduct, productListViewAdapter, messages);
+        socketClientContract.subscriberStomp(MediaPlayer.create(this, R.raw.nofication), listProduct, productListViewAdapter, messages);
 
     }
 
