@@ -173,7 +173,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng HaNoi = new LatLng(21.069450,105.810852);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(HaNoi, 10));
         }
-
     }
 
     @Override
@@ -255,38 +254,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     };
                     fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
                 }
-
             });
         }else{
-            locationRequest = LocationRequest.create();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(5000);
-            locationRequest.setFastestInterval(2000);
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-            builder.setAlwaysShow(true);
-            Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(getApplicationContext())
-                    .checkLocationSettings(builder.build());
-            result.addOnCompleteListener(task -> {
-                try {
-                    task.getResult(ApiException.class);
-                } catch (ApiException e) {
-                    switch (e.getStatusCode()){
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                ResolvableApiException resolvableApiException = (ResolvableApiException) e;
-                                resolvableApiException.startResolutionForResult(MapsActivity.this, RequestCheck);
-                            } catch (IntentSender.SendIntentException sendIntentException) {
-                                sendIntentException.printStackTrace();
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            break;
-                    }
-                }
-            });
+            turnOnGPS();
         }
     }
 
+    public void turnOnGPS(){
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(2000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+        Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(getApplicationContext())
+                .checkLocationSettings(builder.build());
+        result.addOnCompleteListener(task -> {
+            try {
+                task.getResult(ApiException.class);
+            } catch (ApiException e) {
+                switch (e.getStatusCode()){
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            ResolvableApiException resolvableApiException = (ResolvableApiException) e;
+                            resolvableApiException.startResolutionForResult(MapsActivity.this, RequestCheck);
+                        } catch (IntentSender.SendIntentException sendIntentException) {
+                            sendIntentException.printStackTrace();
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        break;
+                }
+            }
+        });
+    }
     public void animateCameraAndMaker(LatLng latLng, String type){
         Geocoder geocoder;
         String address;
@@ -297,7 +298,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(mapsActivities.size() != 0){
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 address = mapsActivities.get(0).getAddressLine(0);
-
                 markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
                 markerOptions.title(type + ": " + address);
