@@ -2,6 +2,7 @@ package com.google.codelabs.mdc.java.shrine.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -19,7 +20,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -60,6 +64,8 @@ import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +79,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
-    Location currentLocation;
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
     private final static int REQUEST_CODE = 101;
@@ -90,6 +95,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String message;
     boolean isDriver;
     CheckBox checkBox;
+    ActivityResultLauncher activityResultLauncher;
+    private ProgressDialog progressDialog;
+    Thread mThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 //        get gg map
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
         getDirection = findViewById(R.id.button);
@@ -109,26 +118,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         getDirection.setOnClickListener(v -> {
             if(lat1 != 0 && long1 != 0 && lat2 !=0 && long2 != 0){
-                drawRoute();
-            }
-        });
 
-        Places.initialize(getApplicationContext(), getResources().getString(R.string.google_maps_key));
-        originEditText.setFocusable(false);
-        originEditText.setOnClickListener(v -> {
-            type = "Origin";
-            List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG);
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                    .build(MapsActivity.this);
-            startActivityForResult(intent, GET_DISTANCE);
-        });
-        destinationEditText.setFocusable(false);
-        destinationEditText.setOnClickListener(v -> {
-            type = "Destination";
-            List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG);
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                    .build(MapsActivity.this);
-            startActivityForResult(intent, GET_DISTANCE);
+//                progressDialog = new ProgressDialog(this);
+//                progressDialog.show();
+//                progressDialog.setContentView(R.layout.progress_dialog);
+//                progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+//                mThread = new Thread() {
+//                    @Override
+//                    public void run() {
+                        drawRoute();
+//                        progressDialog.dismiss();
+//                    }
+//                };
+//                mThread.start();
+
+            }
         });
 
         currentLocationBtn.setOnClickListener(v -> {
@@ -154,15 +158,71 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Get the Intent that started this activity and extract the string
         message = getIntent().getStringExtra("driver apply contract");
-        if(message != null){
-            isDriver = true;
-        }else {
-            isDriver = false;
-        }
+        isDriver = message != null;
+
+//        auto place google api
+        Places.initialize(getApplicationContext(), getResources().getString(R.string.google_maps_key));
+        originEditText.setFocusable(false);
+        originEditText.setOnClickListener(v -> {
+            type = "Origin";
+            List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG);
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                    .build(MapsActivity.this);
+            activityResultLauncher.launch(intent);
+        });
+        destinationEditText.setFocusable(false);
+        destinationEditText.setOnClickListener(v -> {
+            type = "Destination";
+            List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG);
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                    .build(MapsActivity.this);
+            activityResultLauncher.launch(intent);
+        });
+        activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    //            delete distance fragment
+                    if(fragmentDistance != null){
+                        fm.beginTransaction()
+                                .remove(fragmentDistance)
+                                .commit();
+                    }
+                    try {
+                        Place place = Autocomplete.getPlaceFromIntent(data);
+                        if(type.equals("Origin")){
+                            originEditText.setText(place.getAddress());
+                            String sOrigin = String.valueOf(place.getLatLng());
+                            sOrigin = sOrigin.replaceAll("lat/lng: ", "");
+                            sOrigin = sOrigin.replace("(", "");
+                            sOrigin = sOrigin.replace(")", "");
+                            String[] split = sOrigin.split(",");
+                            lat1 = Double.parseDouble(split[0]);
+                            long1 = Double.parseDouble(split[1]);
+                            moveCamera(new LatLng(lat1, long1));
+                        }else{
+                            destinationEditText.setText(place.getAddress());
+                            String sDestination = String.valueOf(place.getLatLng());
+                            sDestination = sDestination.replaceAll("lat/lng: ", "");
+                            sDestination = sDestination.replace("(", "");
+                            sDestination = sDestination.replace(")", "");
+                            String[] split = sDestination.split(",");
+                            lat2 = Double.parseDouble(split[0]);
+                            long2 = Double.parseDouble(split[1]);
+                            moveCamera(new LatLng(lat2, long2));
+                        }
+                        mMap.clear();
+                        addMaker(new LatLng(lat1, long1), "Origin");
+                        addMaker(new LatLng(lat2, long2),"Destination");
+                    }catch (Exception ignored){
+//                        nếu exception thi khong phai loi, chi la do nhan vao cho trong luc tim kiem
+                    }
+                }
+        );
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NotNull GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         if(isDriver){
@@ -175,44 +235,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == GET_DISTANCE && resultCode == RESULT_OK){
-
-//            delete distance fragment
-            if(fragmentDistance != null){
-                fm.beginTransaction()
-                        .remove(fragmentDistance)
-                        .commit();
-            }
-
-            Place place = Autocomplete.getPlaceFromIntent(data);
-            if(type.equals("Origin")){
-                originEditText.setText(place.getAddress());
-                String sOrigin = String.valueOf(place.getLatLng());
-                sOrigin = sOrigin.replaceAll("lat/lng: ", "");
-                sOrigin = sOrigin.replace("(", "");
-                sOrigin = sOrigin.replace(")", "");
-                String[] split = sOrigin.split(",");
-                lat1 = Double.parseDouble(split[0]);
-                long1 = Double.parseDouble(split[1]);
-            }else{
-                destinationEditText.setText(place.getAddress());
-                String sDestination = String.valueOf(place.getLatLng());
-                sDestination = sDestination.replaceAll("lat/lng: ", "");
-                sDestination = sDestination.replace("(", "");
-                sDestination = sDestination.replace(")", "");
-                String[] split = sDestination.split(",");
-                lat2 = Double.parseDouble(split[0]);
-                long2 = Double.parseDouble(split[1]);
-            }
-            mMap.clear();
-            animateCameraAndMaker(new LatLng(lat1, long1), "Origin");
-            animateCameraAndMaker(new LatLng(lat2, long2),"Destination");
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
@@ -223,32 +245,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location location = task.getResult();
                 if(location != null){
                     if(!isDriver){
-                        currentLocation = location;
                         mapFragment.getMapAsync(googleMap -> {
-                            mMap.clear();
-                            lat1 = location.getLatitude();
-                            long1 = location.getLongitude();
-                            animateCameraAndMaker(new LatLng(lat1, long1), "Origin");
-                            animateCameraAndMaker(new LatLng(lat2, long2), "Destination");
-                            originEditText.setText("Your current Location");
+                            gotoMyLocation(location);
                         });
                     }
                 }else{
-                    LocationRequest locationRequest = new LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                            .setInterval(10000)
+                    LocationRequest locationRequest = LocationRequest.create().setInterval(10000)
                             .setFastestInterval(1000)
                             .setNumUpdates(1);
                     LocationCallback locationCallback = new LocationCallback(){
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
-                            Location location1 =  locationResult.getLastLocation();
+                            Location location =  locationResult.getLastLocation();
                             if(!isDriver){
-                                mMap.clear();
-                                lat1 = location1.getLatitude();
-                                long1 = location1.getLongitude();
-                                animateCameraAndMaker(new LatLng(lat1, long1), "Origin");
-                                animateCameraAndMaker(new LatLng(lat2, long2), "Destination");
-                                originEditText.setText("Your current Location");
+                                gotoMyLocation(location);
                             }
                         }
                     };
@@ -258,6 +268,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else{
             turnOnGPS();
         }
+    }
+
+    public void gotoMyLocation(Location location){
+        mMap.clear();
+        lat1 = location.getLatitude();
+        long1 = location.getLongitude();
+        addMaker(new LatLng(lat1, long1), "Origin");
+        addMaker(new LatLng(lat2, long2), "Destination");
+        moveCamera(new LatLng(lat1, long1));
+        originEditText.setText("Your current Location");
     }
 
     public void turnOnGPS(){
@@ -288,7 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-    public void animateCameraAndMaker(LatLng latLng, String type){
+    public void addMaker(LatLng latLng, String type){
         Geocoder geocoder;
         String address;
         MarkerOptions markerOptions ;
@@ -296,7 +316,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             List<Address> mapsActivities = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if(mapsActivities.size() != 0){
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 address = mapsActivities.get(0).getAddressLine(0);
                 markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
@@ -313,6 +332,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    void moveCamera(LatLng latLng){
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     public void drawRoute(){
@@ -411,8 +434,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lat2 = message.getLat2();
         long1 = message.getLong1();
         long2 = message.getLong2();
-        animateCameraAndMaker(new LatLng(lat1, long1), "Origin");
-        animateCameraAndMaker(new LatLng(lat2, long2), "Destination");
+        addMaker(new LatLng(lat1, long1), "Origin");
+        addMaker(new LatLng(lat2, long2), "Destination");
+        moveCamera(new LatLng(lat2, long2));
         drawRoute();
         destinationEditText.setFocusable(false);
         originEditText.setFocusable(false);
