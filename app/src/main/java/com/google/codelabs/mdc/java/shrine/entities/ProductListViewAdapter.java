@@ -45,7 +45,7 @@ public class ProductListViewAdapter extends BaseAdapter {
 
         View viewProduct;
         if (convertView == null) {
-            viewProduct = View.inflate(parent.getContext(), R.layout.product_view, null);
+            viewProduct = View.inflate(parent.getContext(), R.layout.notification_view, null);
         } else viewProduct = convertView;
 
         //Bind sữ liệu phần tử vào View

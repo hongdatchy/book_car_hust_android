@@ -62,29 +62,33 @@ tools:context=".activities.MapsActivity">
         app:layout_constraintVertical_bias="1.0" />
 
     <RelativeLayout
-        android:layout_marginTop="10dp"
+        android:id="@+id/relativeLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/container">
+
         <CheckBox
-            android:paddingRight="3dp"
-            android:layout_marginLeft="13dp"
             android:id="@+id/my_checkbox"
-            android:textSize="15dp"
-            android:text="Hybrid"
             android:layout_width="wrap_content"
-            android:layout_height="50dp"/>
+            android:layout_height="50dp"
+            android:layout_marginLeft="14dp"
+            android:background="#ffffff"
+            android:paddingRight="3dp"
+            android:text="Hybrid"
+            android:textSize="15dp" />
+
         <ImageButton
-            android:layout_marginRight="13dp"
             android:id="@+id/current_location_btn"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="14dp"
+            android:background="#ffffff"
             android:scaleType="fitCenter"
             android:src="@drawable/current_icon_2"
-            android:background="@android:color/transparent"
-            android:layout_alignParentRight="true"
             app:layout_constraintVertical_bias="0.0" />
     </RelativeLayout>
     <RelativeLayout
@@ -116,7 +120,5 @@ tools:context=".activities.MapsActivity">
                 android:text="get direction" />
         </LinearLayout>
     </RelativeLayout>
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

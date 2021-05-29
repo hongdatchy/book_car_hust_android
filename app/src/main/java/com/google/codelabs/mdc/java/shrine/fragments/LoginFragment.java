@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import com.google.codelabs.mdc.java.shrine.entities.MyResponse;
 import com.google.codelabs.mdc.java.shrine.R;
 import com.google.codelabs.mdc.java.shrine.activities.MainActivity;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 
 import androidx.annotation.NonNull;
@@ -45,7 +43,7 @@ public class LoginFragment extends Fragment {
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.shr_login_fragment, container, false);
+        View view = inflater.inflate(R.layout.login_fragment, container, false);
         passwordTextInput = view.findViewById(R.id.password_text_input);
         passwordEditText = view.findViewById(R.id.password_edit_text);
         usernameEditText = view.findViewById(R.id.username_edit_text);

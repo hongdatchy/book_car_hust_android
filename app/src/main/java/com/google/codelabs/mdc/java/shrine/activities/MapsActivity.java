@@ -242,7 +242,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }else{
                     LocationRequest locationRequest = LocationRequest.create().setInterval(10000)
                             .setFastestInterval(1000)
-                            .setNumUpdates(1);
+                            .setNumUpdates(1)
+                            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);;
                     LocationCallback locationCallback = new LocationCallback(){
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
@@ -265,7 +266,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lat1 = location.getLatitude();
         long1 = location.getLongitude();
         addMaker(new LatLng(lat1, long1), "Origin");
-        addMaker(new LatLng(lat2, long2), "Destination");
+        if(lat2 != 0 && long2 != 0){
+            addMaker(new LatLng(lat2, long2), "Destination");
+        }
         moveCamera(new LatLng(lat1, long1));
         originEditText.setText("Your current Location");
     }
@@ -273,8 +276,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void turnOnGPS(){
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(2000);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(1000);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
         Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(getApplicationContext())
@@ -379,7 +382,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getDistance(String d) {
-        double distance = Double.parseDouble(d.split(" ")[0]);
+        double distance = Double.parseDouble(d.split(" ")[0].replaceAll(",","."));
         if(d.split(" ")[1].equals("mi")){
             distance *= 1.609344;
         }

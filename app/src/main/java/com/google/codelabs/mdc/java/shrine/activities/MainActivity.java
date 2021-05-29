@@ -2,6 +2,8 @@ package com.google.codelabs.mdc.java.shrine.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.RelativeLayout;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.codelabs.mdc.java.shrine.fragments.LoginFragment;
@@ -12,8 +14,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shr_main_activity);
-
+        setContentView(R.layout.main_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
