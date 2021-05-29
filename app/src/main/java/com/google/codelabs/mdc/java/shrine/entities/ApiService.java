@@ -6,8 +6,10 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -25,4 +27,10 @@ public interface ApiService {
 
     @POST("api/us/user/book")
     Call<MyResponse> book(@Body BookPayload bookPayload, @Header("token") String token);
+
+    @GET("https://maps.googleapis.com/maps/api/directions/json")
+    Call<Object> getDirection(@Query("origin") String origin,
+                              @Query("destination") String destination,
+                              @Query("mode") String mode,
+                              @Query("key") String key);
 }

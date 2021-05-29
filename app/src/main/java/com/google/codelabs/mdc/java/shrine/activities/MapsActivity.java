@@ -20,8 +20,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
@@ -52,25 +50,28 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.codelabs.mdc.java.shrine.R;
+import com.google.codelabs.mdc.java.shrine.entities.ApiService;
 import com.google.codelabs.mdc.java.shrine.entities.Message;
 import com.google.codelabs.mdc.java.shrine.fragments.DistanceFragment;
 import com.google.gson.Gson;
-import com.google.maps.DirectionsApi;
-import com.google.maps.DirectionsApiRequest;
-import com.google.maps.GeoApiContext;
-import com.google.maps.model.DirectionsLeg;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.DirectionsStep;
-import com.google.maps.model.EncodedPolyline;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
@@ -82,7 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
     private final static int REQUEST_CODE = 101;
-    private final static int GET_DISTANCE = 100;
     public static final int RequestCheck =102;
     Button getDirection;
     ImageButton currentLocationBtn;
@@ -97,7 +97,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     CheckBox checkBox;
     ActivityResultLauncher activityResultLauncher;
     private ProgressDialog progressDialog;
-    Thread mThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,20 +117,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         getDirection.setOnClickListener(v -> {
             if(lat1 != 0 && long1 != 0 && lat2 !=0 && long2 != 0){
-
-//                progressDialog = new ProgressDialog(this);
-//                progressDialog.show();
-//                progressDialog.setContentView(R.layout.progress_dialog);
-//                progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-//                mThread = new Thread() {
-//                    @Override
-//                    public void run() {
-                        drawRoute();
-//                        progressDialog.dismiss();
-//                    }
-//                };
-//                mThread.start();
-
+                progressDialog = new ProgressDialog(this);
+                progressDialog.show();
+                progressDialog.setContentView(R.layout.progress_dialog);
+                progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                drawRoute();
             }
         });
 
@@ -308,6 +298,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+
     public void addMaker(LatLng latLng, String type){
         Geocoder geocoder;
         String address;
@@ -339,75 +330,59 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void drawRoute(){
-        //Define list to get all latLng for the route
-        List<LatLng> path = new ArrayList();
-        //Execute Directions API request
-        GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey(getResources().getString(R.string.google_maps_key))
-                .build();
-        DirectionsApiRequest req = DirectionsApi.getDirections(context, lat1 + "," + long1, lat2 + "," + long2);
-        try {
-            DirectionsResult res = req.await();
-            //Loop through legs and steps to get encoded polyline of each step
-            if (res.routes != null && res.routes.length > 0) {
-                DirectionsRoute route = res.routes[0];
-                if (route.legs !=null) {
-                    for(int i=0; i<route.legs.length; i++) {
-                        DirectionsLeg leg = route.legs[i];
-                        if (leg.steps != null) {
-                            for (int j=0; j<leg.steps.length;j++){
-                                DirectionsStep step = leg.steps[j];
-                                if (step.steps != null && step.steps.length >0) {
-                                    for (int k=0; k<step.steps.length;k++){
-                                        DirectionsStep step1 = step.steps[k];
-                                        EncodedPolyline points1 = step1.polyline;
-                                        if (points1 != null) {
-                                            //Decode polyline and add points to list of route coordinates
-                                            List<com.google.maps.model.LatLng> coords1 = points1.decodePath();
-                                            for (com.google.maps.model.LatLng coord1 : coords1) {
-                                                path.add(new LatLng(coord1.lat, coord1.lng));
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    EncodedPolyline points = step.polyline;
-                                    if (points != null) {
-                                        //Decode polyline and add points to list of route coordinates
-                                        List<com.google.maps.model.LatLng> coords = points.decodePath();
-                                        for (com.google.maps.model.LatLng coord : coords) {
-                                            path.add(new LatLng(coord.lat, coord.lng));
-                                        }
-                                    }
+        ApiService.apiService.getDirection(lat1 +","+long1,
+                lat2 + "," + long2,
+                "driving",
+                getResources().getString(R.string.google_maps_key))
+                .enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                List<LatLng> points = new ArrayList<>();
+                JSONArray jRoutes;
+                JSONArray jLegs;
+                JSONArray jSteps;
+                String distance ="";
+                try {
+                    JsonObject jsonObject = JsonParser.parseString(new Gson().toJson(response.body())).getAsJsonObject();
+                    jRoutes = new JSONObject(jsonObject.toString()).getJSONArray("routes");
+                    for (int i = 0; i < jRoutes.length(); i++) {
+                        jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
+                        for (int j = 0; j < jLegs.length(); j++) {
+                            jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
+                            distance = ((JSONObject) jLegs.get(j)).getJSONObject("distance").getString("text");
+                            for (int k = 0; k < jSteps.length(); k++) {
+                                String polyline = "";
+                                polyline = (String) ((JSONObject) ((JSONObject) jSteps.get(k)).get("polyline")).get("points");
+                                List<LatLng> list = PolyUtil.decode(polyline);
+                                for (int l = 0; l < list.size(); l++) {
+                                    points.add(new LatLng(list.get(l).latitude, list.get(l).longitude));
                                 }
                             }
                         }
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (points.size() > 0) {
+                    PolylineOptions opts = new PolylineOptions().addAll(points).color(Color.BLUE).width(10);
+                    mMap.addPolyline(opts);
+                    getDistance(distance);
+                    progressDialog.dismiss();
                 }
             }
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        //Draw the polyline
-        if (path.size() > 0) {
-            PolylineOptions opts = new PolylineOptions().addAll(path).color(Color.BLUE).width(5);
-             mMap.addPolyline(opts);
-            // get distance
-            getDistance(path);
-        }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                progressDialog.dismiss();
+            }
+        });
     }
 
-    private void getDistance(List<LatLng> path) {
-        double distance = 0.0;
-        Location location1 = new Location("");
-        Location location2 = new Location("");
-        for(int i = 0; i < path.size()-1; i++){
-            location1.setLatitude(path.get(i).latitude);
-            location1.setLongitude(path.get(i).longitude);
-            location2.setLatitude(path.get(i+1).latitude);
-            location2.setLongitude(path.get(i+1).longitude);
-            distance += location1.distanceTo(location2);
+    private void getDistance(String d) {
+        double distance = Double.parseDouble(d.split(" ")[0]);
+        if(d.split(" ")[1].equals("mi")){
+            distance *= 1.609344;
         }
-        distance /= 1000;// m -> km
         fragmentDistance = new DistanceFragment();
         Bundle bundle = new Bundle();
         bundle.putString("distance", String.valueOf(distance));
