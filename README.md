@@ -1,33 +1,38 @@
 Requirement: java 8
 
-Run: pull code and run
+Run: 
+-	pull code
+
+-	create Key in google api from billing account
 
 Login: 
 -	Accout user:
 	  Username: user
 	  
 	  Pass: user
+	  
 -	Accout driver:
 	  Username: driver
 	  
 	  Pass: driver
 
-Note: Backend in time that u see this project may not run because my backend is free trial(3 mouth from google cloud platform)
+Note: 
+-	Backend in time that u see this project may not run because my backend is free trial(3 mouth from google cloud platform)
 
-Your Key in google api must is not bill account of following territory(Prohibited Territories):
+-	Your Key in google api must is not billing account of following territory(Prohibited Territories):
 
-- China
+	- China
 
-- Crimea
+	- Crimea
 
-- Cuba
+	- Cuba
 
-- Iran
+	- Iran
 
-- North Korea
+	- North Korea
 
-- Syria
+	- Syria
 
-- Vietnam
+	- Vietnam
 
-otherwise place_api may not work
+Otherwise place_api may not work
