@@ -1,4 +1,4 @@
-requirement: java 8
+Requirement: java 8
 
 Run: pull code and run
 
