@@ -2,8 +2,10 @@ package com.google.codelabs.mdc.java.shrine.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,19 +66,33 @@ public class DistanceFragment extends Fragment {
         destination = getArguments().getString("destination");
         phone = getArguments().getString("phone");
         if(phone != null){
-            button.setEnabled(false);
             button.setText("Phone " + phone);
             button.setTextSize(10);
-
+            button.setOnClickListener(v -> {
+                call(phone);
+            });
+        }else{
+            button.setOnClickListener(v -> {
+                book();
+            });
         }
         cost = getCost(distance);
         String costStr = String.valueOf(cost).replaceAll("(\\d)(?=(\\d{3})+$)", "$1,");
         textView.setText("Distance: " + Math.round(distance*100.0)/100.0 + " km" + '\n' + "Cost: " + costStr + " Vn Dong");
-        button.setOnClickListener(v -> {
-            book();
-        });
-
         return view;
+    }
+
+    private void call(String phone) {
+        String phoneNumber = String.format("tel: %s", phone);
+        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+        // Set the data for the intent as the phone number.
+        callIntent.setData(Uri.parse(phoneNumber));
+        // If package resolves to an app, send intent.
+        if (callIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(callIntent);
+        } else {
+            Log.e(TAG, "Can't resolve app for ACTION_DIAL Intent.");
+        }
     }
 
     private int getCost(double distance) {

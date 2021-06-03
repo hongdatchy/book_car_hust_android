@@ -122,6 +122,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 progressDialog.setContentView(R.layout.progress_dialog);
                 progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 drawRoute();
+                progressDialog.dismiss();
             }
         });
 
@@ -370,13 +371,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     PolylineOptions opts = new PolylineOptions().addAll(points).color(Color.BLUE).width(10);
                     mMap.addPolyline(opts);
                     getDistance(distance);
-                    progressDialog.dismiss();
+
                 }
             }
 
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
-                progressDialog.dismiss();
+
             }
         });
     }
