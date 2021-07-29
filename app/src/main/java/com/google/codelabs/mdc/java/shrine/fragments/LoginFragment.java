@@ -56,6 +56,7 @@ public class LoginFragment extends Fragment {
             SharedPreferences settings = getActivity().getSharedPreferences("user_info", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
             editor.putString("username", username).apply();
+
 //            call api login
             callApi(new LoginForm(username, pass));
         });

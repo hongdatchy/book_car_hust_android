@@ -58,7 +58,7 @@ public class DriverActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Gson gson = new Gson();
                 Intent myIntent = new Intent(DriverActivity.this, MapsActivity.class);
-                myIntent.putExtra("driver apply contract", gson.toJson(messages.get(messages.size()-1)));
+                myIntent.putExtra("driver apply contract", gson.toJson(messages.get(position)));
                 DriverActivity.this.startActivity(myIntent);
             }
         });

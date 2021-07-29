@@ -97,6 +97,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     CheckBox checkBox;
     ActivityResultLauncher activityResultLauncher;
     private ProgressDialog progressDialog;
+    private boolean isFirstCallBack;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 progressDialog.setContentView(R.layout.progress_dialog);
                 progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 drawRoute();
-                progressDialog.dismiss();
+
             }
         });
 
@@ -173,6 +176,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     Intent data = result.getData();
+
                     //            delete distance fragment
                     if(fragmentDistance != null){
                         fm.beginTransaction()
@@ -181,6 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     try {
                         Place place = Autocomplete.getPlaceFromIntent(data);
+                        System.out.println("place" + place);
                         if(type.equals("Origin")){
                             originEditText.setText(place.getAddress());
                             String sOrigin = String.valueOf(place.getLatLng());
@@ -207,6 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         addMaker(new LatLng(lat2, long2),"Destination");
                     }catch (Exception ignored){
 //                        nếu exception thi khong phai loi, chi la do nhan vao cho trong luc tim kiem
+                        System.out.println("slkhsvsksljbfisb");
                     }
                 }
         );
@@ -232,31 +238,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
-                Location location = task.getResult();
-                if(location != null){
-                    if(!isDriver){
-                        mapFragment.getMapAsync(googleMap -> {
-                            gotoMyLocation(location);
-                        });
-                    }
-                }else{
-                    LocationRequest locationRequest = LocationRequest.create().setInterval(10000)
-                            .setFastestInterval(1000)
-                            .setNumUpdates(1)
-                            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);;
-                    LocationCallback locationCallback = new LocationCallback(){
+            locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(1000);
+            isFirstCallBack = true;
+            LocationCallback locationCallback = new LocationCallback(){
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
                             Location location =  locationResult.getLastLocation();
-                            if(!isDriver){
+                            if(!isDriver && isFirstCallBack){
                                 gotoMyLocation(location);
                             }
+                            isFirstCallBack = false;
                         }
                     };
-                    fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-                }
-            });
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
         }else{
             turnOnGPS();
         }
@@ -371,13 +368,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     PolylineOptions opts = new PolylineOptions().addAll(points).color(Color.BLUE).width(10);
                     mMap.addPolyline(opts);
                     getDistance(distance);
-
+                    if(!isDriver){
+                        progressDialog.dismiss();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
-
+                if(!isDriver){
+                    progressDialog.dismiss();
+                }
             }
         });
     }
