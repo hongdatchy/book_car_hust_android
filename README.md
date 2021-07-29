@@ -1,7 +1,5 @@
 Demo
-https://www.youtube.com/watch?v=0uk0j5XTDSo
-https://user-images.githubusercontent.com/58986949/115314310-805b2780-a1a7-11eb-8558-648a367ea231.mp4
-
+[![Watch the video](https://scontent.fhan5-5.fna.fbcdn.net/v/t1.6435-9/51401417_2314564372092107_880209803073290240_n.jpg?_nc_cat=101&ccb=1-3&_nc_sid=174925&_nc_ohc=CuiOrRsCu2IAX-KIwso&tn=N0dGQasHw2Sczcy-&_nc_ht=scontent.fhan5-5.fna&oh=e31505bd8f3105d05e955cfed8a2fbb5&oe=6126B4DA)](https://www.youtube.com/watch?v=0uk0j5XTDSo
 Requirement: java 8
 
 Run: 
