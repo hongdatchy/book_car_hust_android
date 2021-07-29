@@ -1,6 +1,7 @@
 Demo
 
-![Alt Text](https://github.com/hongdatchy/book_car_hust_android/blob/master/demo.gif =540x280)
+<img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" width="540" height="280" />
+
 
 Requirement: java 8
 
