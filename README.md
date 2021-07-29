@@ -1,6 +1,6 @@
 Demo
 
-<img src="https://github.com/hongdatchy/book_car_hust_android/blob/master/demo.gif" width="540" height="280" />
+<img src="https://github.com/hongdatchy/book_car_hust_android/blob/master/demo.gif" width="280" height="540" />
 
 
 Requirement: java 8
