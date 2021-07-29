@@ -1,6 +1,6 @@
 Demo
 
-![Alt Text](https://github.com/hongdatchy/book_car_hust_android/blob/master/demo.gif)
+![Alt Text](https://github.com/hongdatchy/book_car_hust_android/blob/master/demo.gif =540x280)
 
 Requirement: java 8
 
