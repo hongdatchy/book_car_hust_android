@@ -23,7 +23,7 @@ public class SocketClientContract {
     private CompositeDisposable compositeDisposable;
     private StompClient mStompClient;
     private static final String TAG = "SocketClientContract";
-    private static final String DOMAIN = "35.193.139.81";
+    private static final String DOMAIN = "116.101.231.40";
     private static final String SERVER_PORT = "8080";
 
     public SocketClientContract(){

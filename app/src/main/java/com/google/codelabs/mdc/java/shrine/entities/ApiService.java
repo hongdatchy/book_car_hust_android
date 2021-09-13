@@ -16,8 +16,9 @@ public interface ApiService {
     Gson gson = new Gson();
 
     ApiService apiService = new Retrofit.Builder()
-            .baseUrl("http://hongdatchy.me:8080/")
+//            .baseUrl("http://hongdatchy.me:8080/")
 //            .baseUrl("http://192.168.1.77:8080/")// khong dung duoc localhost vì cái phone nó làm gì biết cái localhost là cái j
+            .baseUrl("http://116.101.231.40:8080/")// khong dung duoc localhost vì cái phone nó làm gì biết cái localhost là cái j
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService.class);
