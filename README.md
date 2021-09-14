@@ -16,7 +16,7 @@ Install:
 
 -	install backend(below) 
 
--	replace your ip/domain and open port in Common class
+-	replace your ip/domain and open port in Common class into App
 
 Login into App: 
 -	Accout user:
@@ -33,8 +33,10 @@ Login into App:
 
 Note: 
 -	Backend in time that u see this project may not run because my backend is free trial(3 mouth from google cloud platform)
-	You can run Backend yourself. Link github of backend: https://github.com/hongdatchy/backend_of_book_car_hust
-	Don't forget replace your ip/domain and open port in Common class
+
+	You can run Backend yourself. Link github of backend:https://github.com/hongdatchy/backend_of_book_car_hust
+	
+	Don't forget replace your ip/domain and open port in Common class into App
 
 -	Your Key in google api must is not billing account of following territory(Prohibited Territories):
 
