@@ -1,5 +1,6 @@
 package com.google.codelabs.mdc.java.shrine.entities;
 
+import com.google.codelabs.mdc.java.shrine.R;
 import com.google.gson.Gson;
 
 import retrofit2.Call;
@@ -13,12 +14,13 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    String baseUrl = "http://" + Common.public_ip_or_domain_of_backend + ":" + Common.open_port_of_backend + "/";
     Gson gson = new Gson();
 
     ApiService apiService = new Retrofit.Builder()
+
 //            .baseUrl("http://hongdatchy.me:8080/")
-//            .baseUrl("http://192.168.1.77:8080/")// khong dung duoc localhost vì cái phone nó làm gì biết cái localhost là cái j
-            .baseUrl("http://116.101.231.40:8080/")// khong dung duoc localhost vì cái phone nó làm gì biết cái localhost là cái j
+            .baseUrl(baseUrl)// khong dung duoc localhost vì cái phone nó làm gì biết cái localhost là cái j
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService.class);

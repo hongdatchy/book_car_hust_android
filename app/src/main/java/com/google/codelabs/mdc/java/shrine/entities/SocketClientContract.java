@@ -23,8 +23,8 @@ public class SocketClientContract {
     private CompositeDisposable compositeDisposable;
     private StompClient mStompClient;
     private static final String TAG = "SocketClientContract";
-    private static final String DOMAIN = "116.101.231.40";
-    private static final String SERVER_PORT = "8080";
+    private static final String DOMAIN = Common.public_ip_or_domain_of_backend;
+    private static final String SERVER_PORT = Common.open_port_of_backend;
 
     public SocketClientContract(){
         this.mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + DOMAIN

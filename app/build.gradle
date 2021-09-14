@@ -3,8 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 30
     defaultConfig {
-        applicationId "com.hongdatchy"
+//        applicationId "com.hongdatchy"
 //        applicationId "com.hongdatchy1"
+        applicationId "com.hongdatchy2"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
