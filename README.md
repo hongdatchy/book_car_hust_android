@@ -9,6 +9,7 @@ Requirement:
 -	Android Studio Version: 4.1.2
 
 -	Android Device Version: 11
+
 Install: 
 -	pull code
 
