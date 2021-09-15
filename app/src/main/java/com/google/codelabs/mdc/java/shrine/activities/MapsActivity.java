@@ -212,7 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         addMaker(new LatLng(lat2, long2),"Destination");
                     }catch (Exception ignored){
                         System.out.println("place api not working or other case");
-                        makeDestinationAsHust();
+//                        makeDestinationAsHust();
                     }
                 }
         );
@@ -338,44 +338,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
-//                List<LatLng> points = new ArrayList<>();
-//                JSONArray jRoutes;
-//                JSONArray jLegs;
-//                JSONArray jSteps;
-//                String distance ="";
-//                try {
-//                    JsonObject jsonObject = JsonParser.parseString(new Gson().toJson(response.body())).getAsJsonObject();
-//                    jRoutes = new JSONObject(jsonObject.toString()).getJSONArray("routes");
-//                    for (int i = 0; i < jRoutes.length(); i++) {
-//                        jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
-//                        for (int j = 0; j < jLegs.length(); j++) {
-//                            jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
-//                            distance = ((JSONObject) jLegs.get(j)).getJSONObject("distance").getString("text");
-//                            for (int k = 0; k < jSteps.length(); k++) {
-//                                String polyline = "";
-//                                polyline = (String) ((JSONObject) ((JSONObject) jSteps.get(k)).get("polyline")).get("points");
-//                                List<LatLng> list = PolyUtil.decode(polyline);
-//                                for (int l = 0; l < list.size(); l++) {
-//                                    points.add(new LatLng(list.get(l).latitude, list.get(l).longitude));
-//                                }
-//                            }
-//                        }
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                if (points.size() > 0) {
-//                    PolylineOptions opts = new PolylineOptions().addAll(points).color(Color.BLUE).width(10);
-//                    mMap.addPolyline(opts);
-//                    getDistance(distance);
-//                    if(!isDriver){
-//                        progressDialog.dismiss();
-//                    }
-//                }
-                getDistance("100 km");
+                List<LatLng> points = new ArrayList<>();
+                JSONArray jRoutes;
+                JSONArray jLegs;
+                JSONArray jSteps;
+                String distance ="";
+                try {
+                    JsonObject jsonObject = JsonParser.parseString(new Gson().toJson(response.body())).getAsJsonObject();
+                    jRoutes = new JSONObject(jsonObject.toString()).getJSONArray("routes");
+                    for (int i = 0; i < jRoutes.length(); i++) {
+                        jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
+                        for (int j = 0; j < jLegs.length(); j++) {
+                            jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
+                            distance = ((JSONObject) jLegs.get(j)).getJSONObject("distance").getString("text");
+                            for (int k = 0; k < jSteps.length(); k++) {
+                                String polyline = "";
+                                polyline = (String) ((JSONObject) ((JSONObject) jSteps.get(k)).get("polyline")).get("points");
+                                List<LatLng> list = PolyUtil.decode(polyline);
+                                for (int l = 0; l < list.size(); l++) {
+                                    points.add(new LatLng(list.get(l).latitude, list.get(l).longitude));
+                                }
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (points.size() > 0) {
+                    PolylineOptions opts = new PolylineOptions().addAll(points).color(Color.BLUE).width(10);
+                    mMap.addPolyline(opts);
+                    getDistance(distance);
                     if(!isDriver){
                         progressDialog.dismiss();
                     }
+                }
+//                getDistance("100 km");
+//                    if(!isDriver){
+//                        progressDialog.dismiss();
+//                    }
             }
 
             @Override
@@ -430,13 +430,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getDirection.setEnabled(false);
     }
 
-    private void makeDestinationAsHust(){
-        destinationEditText.setText("Bách Khoa Hà ");
-        lat2 = 21.001930;
-        long2 = 105.846558;
-        moveCamera(new LatLng(lat2, long2));
-        mMap.clear();
-        addMaker(new LatLng(lat1, long1), "Origin");
-        addMaker(new LatLng(lat2, long2),"Destination");
-    }
+//    private void makeDestinationAsHust(){
+//        destinationEditText.setText("Bách Khoa Hà ");
+//        lat2 = 21.001930;
+//        long2 = 105.846558;
+//        moveCamera(new LatLng(lat2, long2));
+//        mMap.clear();
+//        addMaker(new LatLng(lat1, long1), "Origin");
+//        addMaker(new LatLng(lat2, long2),"Destination");
+//    }
 }
